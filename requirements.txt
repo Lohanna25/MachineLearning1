@@ -1,0 +1,7 @@
+#Librerias principales
+pandas
+numpy
+scikit-learn
+matplotlib
+joblib
+streamlit
