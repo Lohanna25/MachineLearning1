@@ -5,3 +5,5 @@ scikit-learn
 matplotlib
 joblib
 streamlit
+imbalanced-learn
+shap
