@@ -1,0 +1,12 @@
+{
+  "best_model_name": "logistic",
+  "cv_roc_auc": 0.6601326714618576,
+  "test_roc_auc": 0.6580144687499999,
+  "test_balanced_accuracy_default_thr": 0.5802499999999999,
+  "optimal_threshold": 0.3446788187154708,
+  "optimal_precision": 0.606411171134441,
+  "optimal_recall": 0.9915833333333334,
+  "test_balanced_accuracy_opt_thr": 0.5130416666666667,
+  "full_data_roc_auc": 0.6603870733994218,
+  "full_data_balanced_accuracy": 0.5120781412177766
+}

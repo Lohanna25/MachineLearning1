@@ -54,6 +54,22 @@ El dataset contiene información de pacientes con las siguientes característica
 ### Variable Objetivo
 - `diagnosed_diabetes`: Diagnóstico de diabetes (0: No diabético, 1: Diabético)
 
+## Limpieza del Dataset
+
+Durante el proceso de limpieza se realizaron las siguientes acciones:
+
+- Eliminación de variables derivadas del diagnóstico (ej. diabetes_stage, diabetes_risk_score).
+
+- Conversión de tipos de datos.
+
+- Homogeneización de categorías.
+
+- Eliminación de duplicados.
+
+- Validación de rangos fisiológicos.
+
+- Conversión final del dataset a un conjunto limpio y consistente.
+
 ## Estructura del Proyecto
 
 ```
@@ -61,8 +77,7 @@ MachineLearning1/
 │
 ├── data/
 │   ├── raw/                          # Datos originales
-│   │   └── diabetes_dataset.csv
-│   └── processed/                    # Datos procesados (generados)
+│      └── diabetes_dataset.csv
 │
 ├── src/                              # Código fuente modular
 │   ├── config.py                     # Configuración y rutas
@@ -74,9 +89,10 @@ MachineLearning1/
 │   └── explainability.py             # Explicabilidad con SHAP
 │
 ├── notebooks/                        # Notebooks de análisis
-│   ├── eda_diabetes.ipynb           # Análisis exploratorio de datos
-│   ├── modelado_cv_thresholds.ipynb # Modelado y optimización
-│   └── shap_explicaciones.ipynb     # Análisis de explicabilidad
+│   ├── eda_diabetes.ipynb            # Análisis exploratorio de datos
+│   ├── modelado_cv_thresholds.ipynb  # Modelado y optimización
+│   └── shap_explicaciones.ipynb      # Análisis de explicabilidad
+│   └── validaciion_overfiting.ipynb  # Validación y overfitting
 │
 ├── models/
 │   └── modelo_diabetes.joblib        # Modelo entrenado (generado)
@@ -202,23 +218,39 @@ Los notebooks están ubicados en `notebooks/` y pueden ejecutarse en Jupyter/Dat
   - Feature importance
   - Análisis de contribuciones individuales
 
+- **`validaciion_overfiting.ipynb`**: Validación y sobreajuste
+  - Curvas de aprendizaje (train vs. validación).
+
+  - Análisis de la diferencia entre rendimiento en entrenamiento y prueba.
+    
+  - Validación de estabilidad del modelo.
+
+  - Análisis cualitativo del riesgo de sobreajuste.
+
 ## Resultados del Modelo
 
 ### Métricas de Desempeño
 
 Según el archivo `reports/metrics.json`, el modelo entrenado alcanza:
 
-| Métrica | Valor |
-|---------|-------|
-| **Modelo Seleccionado** | Random Forest |
-| **ROC-AUC (CV)** | 0.9999 |
-| **ROC-AUC (Test)** | 0.9999 |
-| **Balanced Accuracy** | 0.9997 |
-| **Umbral Óptimo** | 0.602 |
-| **Precisión** | 1.000 |
-| **Recall** | 0.9995 |
+| Métrica                  | Valor                |
+| ------------------------ | -------------------- |
+| ROC-AUC (CV)             | 0.660                |
+| ROC-AUC (Test)           | 0.660                |
+| Balanced Accuracy        | 0.512                |
+| Recall Clase Positiva    | 0.990                |
+| Precision Clase Positiva | 0.606                |
+| Threshold óptimo         | ~0.34|
 
-> **Nota:** Estos resultados excepcionalmente altos sugieren que el dataset puede ser sintético o altamente separable. En aplicaciones reales, es importante validar con datos externos y considerar posible overfitting.
+- El modelo detecta casi todos los casos positivos.
+
+- Genera falsos positivos, lo cual es aceptable en detección temprana.
+
+- El desempeño es consistente con un dataset sin variables clínicas.
+
+- Adecuado para uso preventivo o como filtro inicial.
+
+
 
 ### Pipeline de Procesamiento
 
@@ -228,7 +260,7 @@ El modelo implementa el siguiente pipeline:
    - StandardScaler para variables numéricas
    - OneHotEncoder para variables categóricas
 
-2. **Balanceo (opcional):**
+2. **Balanceo :**
    - SMOTE si el desbalance de clases es significativo
 
 3. **Modelo:**
@@ -254,9 +286,17 @@ compute_shap_summary(sample_size=2000)
 ```
 
 Esto permite entender:
-- ¿Qué variables contribuyen más a las predicciones?
-- ¿Cómo afecta cada característica al riesgo de diabetes?
-- Interpretación de predicciones individuales
+- Qué variables contribuyen más a las predicciones. 
+- Cómo varía la probabilidad de diabetes según cambios en las características. 
+- La contribución individual de cada variable en casos concretos.
+
+En el modelo final, las variables más influyentes incluyen:
+
+- `bmi `
+- `age `
+- `waist_to_hip_ratio `
+- `hypertension_history `
+- `physical_activity_minutes_per_week`
 
 ## Módulos del Código
 
@@ -324,27 +364,6 @@ thr_opt, prec_opt, rec_opt = _find_best_threshold(
 ### Agregar nuevas features a la app
 Edita `app/streamlit_app.py` para incluir más campos de entrada según tus necesidades.
 
-## Mejores Prácticas Implementadas
-
-- **Arquitectura modular** con separación de responsabilidades
-- **Configuración centralizada** en `config.py`
-- **Validación cruzada estratificada** para evaluación robusta
-- **Calibración de probabilidades** para predicciones confiables
-- **Optimización de umbrales** considerando trade-offs negocio/técnicos
-- **Manejo de desbalance** con class_weight y SMOTE
-- **Reproducibilidad** con random_state fijado
-- **Explicabilidad** mediante SHAP values
-- **Interfaz de usuario** intuitiva con Streamlit
-
-## Limitaciones y Consideraciones
-
-1. **Dataset Sintético:** Los resultados perfectos sugieren que el dataset puede ser sintético. En producción, validar con datos reales.
-
-2. **Overfitting:** Con ROC-AUC > 0.999, existe riesgo de overfitting. Validar con datos externos.
-
-3. **Aplicación Médica:** Este modelo es solo para fines académicos/demostrativos. No debe usarse para diagnósticos médicos reales sin validación clínica apropiada.
-
-4. **Escalabilidad:** Para datasets grandes, considerar técnicas de muestreo o modelos más eficientes.
 
 ## Referencias
 
@@ -357,9 +376,7 @@ Edita `app/streamlit_app.py` para incluir más campos de entrada según tus nece
 
 Proyecto desarrollado como parte del Taller de Clasificación - Machine Learning 1
 
-## Licencia
 
-Este proyecto es de código abierto y está disponible para fines educativos.
 
 ---
 
@@ -381,3 +398,20 @@ df = load_diabetes_data()
 df_clean = load_diabetes_data(clean=True)
 ```
 
+
+
+
+# Conclusiones del Proyecto
+- El análisis realizado permitió construir un modelo predictivo sólido y bien fundamentado para identificar el riesgo de diabetes en la población estudiada, utilizando únicamente información básica disponible antes de realizar exámenes de laboratorio.
+
+- El proceso de preparación de los datos (limpieza, estandarización y codificación) fue clave para obtener un espacio de características homogéneo y adecuado para el modelado.
+
+- La selección del modelo mediante validación cruzada garantizó una comparación objetiva de las alternativas; la Regresión Logística resultó el modelo más adecuado, combinando interpretabilidad y desempeño.
+
+- La validación adicional a través de curvas de aprendizaje y la comparación entre métricas de entrenamiento y prueba mostraron que el modelo no presenta signos fuertes de sobreajuste y generaliza de forma razonable.
+
+- La optimización del umbral de decisión permitió priorizar la detección de casos positivos (recall elevado), aceptando un mayor número de falsos positivos, decisión coherente con el contexto de salud preventiva.
+
+- El análisis de interpretabilidad mediante SHAP confirmó que las variables más influyentes coinciden con factores clínicamente reconocidos como relevantes en el desarrollo de diabetes.
+
+- En conjunto, el proyecto logró desarrollar un sistema predictivo modular, explicable y reproducible, alineado con los objetivos del taller y con potencial de ser extendido o adaptado a otros escenarios educativos o de apoyo a la toma de decisiones.

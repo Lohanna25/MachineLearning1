@@ -8,7 +8,9 @@ METRICS_PATH = PROJECT_ROOT / "reports" / "metrics.json"
 
 TARGET_COL = "diagnosed_diabetes"
 
-# Columnas (puedes ajustar si cambian los nombres)
+# ============================
+# Columnas categóricas
+# ============================
 CATEGORICAL_COLS = [
     "gender",
     "ethnicity",
@@ -16,10 +18,12 @@ CATEGORICAL_COLS = [
     "income_level",
     "employment_status",
     "smoking_status",
-    "diabetes_stage",
 ]
 
-# Todas menos target y categóricas:
+# ============================
+# Columnas numéricas
+# (sin labs ni diabetes_stage)
+# ============================
 NUMERIC_COLS = [
     "age",
     "alcohol_consumption_per_week",
@@ -35,13 +39,4 @@ NUMERIC_COLS = [
     "systolic_bp",
     "diastolic_bp",
     "heart_rate",
-    "cholesterol_total",
-    "hdl_cholesterol",
-    "ldl_cholesterol",
-    "triglycerides",
-    "glucose_fasting",
-    "glucose_postprandial",
-    "insulin_level",
-    "hba1c",
-    "diabetes_risk_score",
 ]
